@@ -1,7 +1,6 @@
 // ==========================================
 // CosmOS AI: Hyper-Precision Engine Widget
 // ==========================================
-// A standalone module to upscale images on any webpage automatically.
 
 // CONSTANTS
 const Resolution = {
@@ -14,14 +13,14 @@ const Resolution = {
 };
 
 const Algorithm = {
-    QUANTUM: 'Quantum Frequency',
-    WAVELET: 'Wavelet Decomposition',
-    FRACTAL: 'Fractal Upsampling',
-    ATOMIC: 'Atomic Super-Resolution'
+    QUANTUM: "Quantum Frequency",
+    WAVELET: "Wavelet Decomposition",
+    FRACTAL: "Fractal Upsampling",
+    ATOMIC: "Atomic Super-Resolution"
 };
 
 // ==========================================
-// ENGINE LOGIC
+// HYPER ENGINE
 // ==========================================
 class HyperEngine {
     constructor() {
@@ -29,8 +28,8 @@ class HyperEngine {
         this.ctx = this.canvas.getContext("2d", { willReadFrequently: true });
     }
 
-    async generate(resolution, algorithm, sourceImageElement) {
-        if (!this.canvas || !this.ctx) return null;
+    async generate(resolution, algorithm, img) {
+        if (!this.ctx) return null;
 
         this.canvas.width = resolution;
         this.canvas.height = resolution;
@@ -39,32 +38,29 @@ class HyperEngine {
         this.ctx.fillStyle = "#050510";
         this.ctx.fillRect(0, 0, resolution, resolution);
 
-        const tileSize = 256;
-        const tilesX = Math.ceil(resolution / tileSize);
-        const tilesY = Math.ceil(resolution / tileSize);
-
-        // Latent upsample
+        // Latent representation
+        const latent = resolution / 32;
         this.ctx.imageSmoothingEnabled = false;
-        const latentSize = resolution / 32;
 
-        this.ctx.drawImage(sourceImageElement, 0, 0, latentSize, latentSize);
-        this.ctx.drawImage(this.canvas, 0, 0, latentSize, latentSize, 0, 0, resolution, resolution);
+        this.ctx.drawImage(img, 0, 0, latent, latent);
+        this.ctx.drawImage(this.canvas, 0, 0, latent, latent, 0, 0, resolution, resolution);
 
         this.ctx.fillStyle = "rgba(0,0,0,0.5)";
         this.ctx.fillRect(0, 0, resolution, resolution);
 
-        // Process tiles
+        const tileSize = 256;
+        const tilesX = Math.ceil(resolution / tileSize);
+        const tilesY = Math.ceil(resolution / tileSize);
+
+        // Tile-by-tile incremental rendering (LIVE FEEL)
         for (let y = 0; y < tilesY; y++) {
             for (let x = 0; x < tilesX; x++) {
-                const xPos = x * tileSize;
-                const yPos = y * tileSize;
-
-                await new Promise(r => setTimeout(r, 2));
-                this.renderTile(xPos, yPos, tileSize, algorithm, resolution, sourceImageElement);
+                await new Promise(r => setTimeout(r, 1));
+                this.renderTile(x * tileSize, y * tileSize, tileSize, algorithm, resolution, img);
             }
         }
 
-        // Final shaders
+        // Final shader
         this.applyFinalShaders(resolution);
 
         return this.canvas.toDataURL("image/png");
@@ -78,47 +74,38 @@ class HyperEngine {
         this.ctx.rect(x, y, size, size);
         this.ctx.clip();
 
-        if (source) {
-            this.ctx.globalAlpha = 1.0;
-            this.ctx.imageSmoothingEnabled = true;
-            this.ctx.imageSmoothingQuality = "high";
+        // Map image into tile - scaled representation
+        const srcRatioX = source.naturalWidth / totalRes;
+        const srcRatioY = source.naturalHeight / totalRes;
 
-            const srcRatioX = source.naturalWidth / totalRes;
-            const srcRatioY = source.naturalHeight / totalRes;
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = "high";
 
-            this.ctx.drawImage(
-                source,
-                x * srcRatioX, y * srcRatioY, size * srcRatioX, size * srcRatioY,
-                x, y, size, size
-            );
-        }
+        this.ctx.drawImage(
+            source,
+            x * srcRatioX, y * srcRatioY, size * srcRatioX, size * srcRatioY,
+            x, y, size, size
+        );
 
         this.ctx.globalCompositeOperation = "screen";
-        const algoKey = algo ? algo.toUpperCase() : "ATOMIC";
+        algo = (algo || "ATOMIC").toUpperCase();
 
-        if (algoKey.includes("ATOMIC")) this.renderAtomic(x, y, size, totalRes);
-        else if (algoKey.includes("QUANTUM")) this.renderQuantum(x, y, size);
-        else if (algoKey.includes("WAVELET")) this.renderWavelet(x, y, size);
+        if (algo.includes("ATOMIC")) this.renderAtomic(x, y, size, totalRes);
+        else if (algo.includes("QUANTUM")) this.renderQuantum(x, y, size);
+        else if (algo.includes("WAVELET")) this.renderWavelet(x, y, size);
         else this.renderFractal(x, y, size);
-
-        this.ctx.globalCompositeOperation = "source-over";
-        this.ctx.strokeStyle = "rgba(255,255,255,0.02)";
-        this.ctx.strokeRect(x, y, size, size);
 
         this.ctx.restore();
     }
 
-    renderAtomic(x, y, size, totalRes) {
-        if (!this.ctx) return;
-
-        const density = 20;
-        for (let i = 0; i < density; i++) {
-            this.ctx.fillStyle = Math.random() > 0.5 ? "#ffffff" : "#ff9900";
-            this.ctx.globalAlpha = Math.random() * 0.2;
-
+    renderAtomic(x, y, size, res) {
+        for (let i = 0; i < 20; i++) {
             const px = x + Math.random() * size;
             const py = y + Math.random() * size;
-            const r = Math.random() * (totalRes > 2048 ? 1 : 2);
+            const r = Math.random() * (res > 2048 ? 1 : 2);
+
+            this.ctx.fillStyle = Math.random() > 0.5 ? "#fff" : "#ff9900";
+            this.ctx.globalAlpha = Math.random() * 0.2;
 
             this.ctx.beginPath();
             this.ctx.arc(px, py, r, 0, Math.PI * 2);
@@ -127,10 +114,7 @@ class HyperEngine {
     }
 
     renderQuantum(x, y, size) {
-        if (!this.ctx) return;
-
         this.ctx.strokeStyle = "#00ffff";
-        this.ctx.lineWidth = 1;
         this.ctx.globalAlpha = 0.15;
 
         for (let i = 0; i < 3; i++) {
@@ -146,14 +130,12 @@ class HyperEngine {
     }
 
     renderWavelet(x, y, size) {
-        if (!this.ctx) return;
-
         for (let i = 0; i < 8; i++) {
-            this.ctx.fillStyle = "#ff00ff";
-            this.ctx.globalAlpha = 0.08;
-
             const w = Math.random() * size;
             const h = Math.random() * size;
+
+            this.ctx.fillStyle = "#ff00ff";
+            this.ctx.globalAlpha = 0.08;
 
             this.ctx.fillRect(
                 x + Math.random() * (size - w),
@@ -164,10 +146,7 @@ class HyperEngine {
     }
 
     renderFractal(x, y, size) {
-        if (!this.ctx) return;
-
         this.ctx.strokeStyle = "#00ff88";
-        this.ctx.lineWidth = 1;
         this.ctx.globalAlpha = 0.2;
 
         const cx = x + size / 2;
@@ -182,96 +161,76 @@ class HyperEngine {
     }
 
     applyFinalShaders(res) {
-        if (!this.ctx) return;
+        this.ctx.globalAlpha = 1;
 
-        this.ctx.globalCompositeOperation = "source-over";
+        // Scanlines
         this.ctx.fillStyle = "rgba(0,0,0,0.1)";
-
         for (let i = 0; i < res; i += 4) {
             this.ctx.fillRect(0, i, res, 1);
         }
 
-        const grad = this.ctx.createRadialGradient(
+        // Vignette
+        const g = this.ctx.createRadialGradient(
             res / 2, res / 2, res / 4,
             res / 2, res / 2, res
         );
+        g.addColorStop(0, "rgba(0,0,0,0)");
+        g.addColorStop(1, "rgba(0,0,0,0.4)");
 
-        grad.addColorStop(0, "rgba(0,0,0,0)");
-        grad.addColorStop(1, "rgba(0,0,0,0.4)");
-
-        this.ctx.fillStyle = grad;
+        this.ctx.fillStyle = g;
         this.ctx.fillRect(0, 0, res, res);
 
+        // Glow
         this.ctx.globalCompositeOperation = "overlay";
         this.ctx.fillStyle = "rgba(0,255,255,0.05)";
         this.ctx.fillRect(0, 0, res, res);
+
+        // Reset
+        this.ctx.globalCompositeOperation = "source-over";
     }
 }
 
 // ==========================================
-// WIDGET CONTROLLER
+// AUTO WIDGET
 // ==========================================
 const initCosmosWidget = () => {
-    console.log("%c ✨ CosmOS Hyper-Precision Widget Active ✨ ",
-        "background:#050510;color:#00ffff;padding:5px;border:1px solid #ff00ff;font-weight:bold"
-    );
+    console.log("✨ Cosmos Hyper-Precision Widget Active ✨");
 
     const engine = new HyperEngine();
-    const images = document.querySelectorAll('img[data-cosmos-upscale="true"]');
-
-    if (images.length === 0) {
-        console.log("[CosmOS] No images found with data-cosmos-upscale=\"true\"");
-        return;
-    }
+    const images = document.querySelectorAll("img[data-cosmos-upscale='true']");
 
     images.forEach(async (img) => {
-        if (img.dataset.cosmosProcessed) return;
+        if (img.dataset.cosmosProcessed === "true") return;
 
-        img.dataset.cosmosProcessed = "processing";
-        const originalTransition = img.style.transition;
-
-        img.style.transition = "filter 0.5s ease, opacity 0.5s ease";
-        img.style.filter = "blur(4px) grayscale(50%)";
-        img.style.opacity = "0.7";
+        img.dataset.cosmosProcessed = "true";
 
         const res = parseInt(img.dataset.cosmosRes || "1024");
         const algo = img.dataset.cosmosAlgo || "ATOMIC";
 
-        try {
-            if (!img.complete) {
-                await new Promise(resolve => {
-                    img.onload = () => resolve(true);
-                });
-            }
+        // Loading effect
+        img.style.opacity = "0.6";
+        img.style.filter = "blur(4px) grayscale(50%)";
+        img.style.transition = "0.4s ease";
 
-            const resultDataUrl = await engine.generate(res, algo, img);
+        await new Promise(r => img.complete ? r() : img.onload = r);
 
-            if (resultDataUrl) {
-                img.src = resultDataUrl;
-                img.dataset.cosmosProcessed = "complete";
-                console.log(`[CosmOS] Upscaled image to ${res}px using ${algo}.`);
-            }
+        const result = await engine.generate(res, algo, img);
 
-        } catch (err) {
-            console.error("[CosmOS] Upscale failed:", err);
-        } finally {
-            img.style.filter = "none";
-            img.style.opacity = "1";
-
-            setTimeout(() => {
-                img.style.transition = originalTransition;
-            }, 500);
+        if (result) {
+            img.src = result;    // LIVE REPLACEMENT
         }
+
+        // Reveal final
+        img.style.opacity = "1";
+        img.style.filter = "none";
     });
 };
 
-// Auto-init
-if (typeof document !== "undefined") {
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initCosmosWidget);
-    } else {
-        initCosmosWidget();
-    }
+// Auto-run
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCosmosWidget);
+} else {
+    initCosmosWidget();
 }
 
 export { HyperEngine, initCosmosWidget };

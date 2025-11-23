@@ -1,8 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Atomic Precision Upscale Engine - Advanced Demo</title>
   <style>
     :root {
       --primary-color: #2c3e50;
@@ -641,4 +636,3 @@
       });
   </script>
 </body>
-</html>

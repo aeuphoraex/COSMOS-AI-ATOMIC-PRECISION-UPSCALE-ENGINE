@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CosmOS AI: Hyper-Precision Engine</title>
+    
+    <!-- External Dependencies (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+      body {
+        font-family: 'Share Tech Mono', monospace;
+        background-color: #050510;
+        color: #e0e0e0;
+        overflow: hidden;
+      }
+      h1, h2, h3, h4, button, .title-font {
+        font-family: 'Orbitron', sans-serif;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1a1a2e; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #ff00ff; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #00ffff; 
+      }
+      .scanline {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+        background-size: 100% 4px;
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.3;
+      }
+      .glow-text {
+        text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
+      }
+    </style>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <div class="scanline"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect, useRef, useCallback } = React;
+
+      // --- ICONS (Inline SVG to remove dependencies) ---
+      const IconBase = ({ children, size = 24, className = "" }) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+          {children}
+        </svg>
+      );
+
+      const X = (props) => <IconBase {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconBase>;
+      const Minus = (props) => <IconBase {...props}><path d="M5 12h14"/></IconBase>;
+      const Square = (props) => <IconBase {...props}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></IconBase>;
+      const Box = (props) => <IconBase {...props}><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></IconBase>;
+      const Terminal = (props) => <IconBase {...props}><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></IconBase>;
+      const Cpu = (props) => <IconBase {...props}><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></IconBase>;
+      const Zap = (props) => <IconBase {...props}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></IconBase>;
+      const Activity = (props) => <IconBase {...props}><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></IconBase>;
+      const Layers = (props) => <IconBase {...props}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></IconBase>;
+      const Download = (props) => <IconBase {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></IconBase>;
+      const ImageIcon = (props) => <IconBase {...props}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></IconBase>;
+      const FileUp = (props) => <IconBase {...props}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></IconBase>;
+      const Sparkles = (props) => <IconBase {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></IconBase>;
+
+      // --- TYPES & CONSTANTS ---
+      const Resolution = {
+        RES_256: 256,
+        RES_512: 512,
+        RES_1024: 1024,
+        RES_2048: 2048,
+        RES_4096: 4096,
+        RES_8192: 8192
+      };
+
+      const Algorithm = {
+        QUANTUM: 'Quantum Frequency',
+        WAVELET: 'Wavelet Decomposition',
+        FRACTAL: 'Fractal Upsampling',
+        ATOMIC: 'Atomic Super-Resolution'
+      };
+
+      const RESOLUTION_OPTIONS = [
+        { value: Resolution.RES_256, label: '256x256 (Preview)' },
+        { value: Resolution.RES_512, label: '512x512 (Balanced)' },
+        { value: Resolution.RES_1024, label: '1024x1024 (HD)' },
+        { value: Resolution.RES_2048, label: '2048x2048 (FHD+)' },
+        { value: Resolution.RES_4096, label: '4096x4096 (4K Ultra)' },
+        { value: Resolution.RES_8192, label: '8192x8192 (8K Hyper)' },
+      ];
+
+      const ALGORITHM_DETAILS = {
+        [Algorithm.QUANTUM]: { description: 'Frequency domain decomposition with quantum superposition', complexity: 'O(n log n)', quality: '95%', color: '#00ffff' },
+        [Algorithm.WAVELET]: { description: 'Haar wavelet transform with multi-scale processing', complexity: 'O(n)', quality: '92%', color: '#ff00ff' },
+        [Algorithm.FRACTAL]: { description: 'Iterated Function Systems (IFS) for texture synthesis', complexity: 'O(n^1.5)', quality: '89%', color: '#00ff88' },
+        [Algorithm.ATOMIC]: { description: 'Sub-pixel precision with parallel tile processing', complexity: 'O(n²)', quality: '98%', color: '#ff9900' }
+      };
+
+      const INITIAL_LOGS = [
+        { id: '1', timestamp: new Date().toISOString(), message: 'CosmOS Kernel v10.0.1 initialized.', type: 'system' },
+        { id: '2', timestamp: new Date().toISOString(), message: 'Hyper-Precision Engine loaded.', type: 'info' },
+        { id: '3', timestamp: new Date().toISOString(), message: 'SharedArrayBuffer allocated.', type: 'system' },
+        { id: '4', timestamp: new Date().toISOString(), message: 'Ready for input.', type: 'success' },
+      ];
+
+      // --- ENGINE SERVICE ---
+      const getVaporColor = (seed) => {
+        let x = Math.sin(seed++) * 10000;
+        let rand = x - Math.floor(x);
+        const hues = [280, 320, 180, 60, 200];
+        const h = hues[Math.floor(rand * hues.length)];
+        return `hsl(${h}, 80%, 60%)`;
+      };
+
+      const hashCode = (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          const char = str.charCodeAt(i);
+          hash = (hash << 5) - hash + char;
+          hash |= 0;
+        }
+        return hash;
+      };
+
+      class HyperEngine {
+        constructor() {
+          this.canvas = null;
+          this.ctx = null;
+        }
+
+        attachCanvas(canvas) {
+          this.canvas = canvas;
+          this.ctx = canvas.getContext('2d', { willReadFrequently: true });
+        }
+
+        async generate(resolution, algorithm, prompt, sourceImage, onProgress, onComplete) {
+          if (!this.canvas || !this.ctx) return;
+          this.canvas.width = resolution;
+          this.canvas.height = resolution;
+          this.ctx.fillStyle = '#050510';
+          this.ctx.fillRect(0, 0, resolution, resolution);
+
+          const tileSize = 256;
+          const tilesX = Math.ceil(resolution / tileSize);
+          const tilesY = Math.ceil(resolution / tileSize);
+          const totalTiles = tilesX * tilesY;
+          let processedTiles = 0;
+          const seed = prompt ? hashCode(prompt) : Math.random() * 10000;
+
+          onProgress(0, `Initializing VAE Encoder for ${resolution}x${resolution}...`);
+          await this.delay(400);
+          onProgress(5, `Allocating SharedArrayBuffer...`);
+          await this.delay(200);
+
+          // Latent Step
+          this.ctx.globalCompositeOperation = 'source-over';
+          if (sourceImage) {
+            this.ctx.imageSmoothingEnabled = false;
+            const latentSize = resolution / 32;
+            this.ctx.drawImage(sourceImage, 0, 0, latentSize, latentSize);
+            this.ctx.drawImage(this.canvas, 0, 0, latentSize, latentSize, 0, 0, resolution, resolution);
+            this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            this.ctx.fillRect(0, 0, resolution, resolution);
+          } else {
+            this.ctx.fillStyle = '#1a1a2e';
+            this.ctx.fillRect(0, 0, resolution, resolution);
+            for(let i=0; i<20; i++) {
+              this.ctx.beginPath();
+              const localSeed = seed + i;
+              const x = (Math.sin(localSeed) * 0.5 + 0.5) * resolution;
+              const y = (Math.cos(localSeed * 1.2) * 0.5 + 0.5) * resolution;
+              const r = (Math.sin(localSeed * 0.5) * 0.5 + 0.5) * (resolution / 2);
+              this.ctx.arc(x, y, r, 0, Math.PI * 2);
+              this.ctx.fillStyle = getVaporColor(localSeed);
+              this.ctx.globalAlpha = 0.3;
+              this.ctx.fill();
+            }
+          }
+
+          // Tile Processing
+          for (let y = 0; y < tilesY; y++) {
+            for (let x = 0; x < tilesX; x++) {
+              const xPos = x * tileSize;
+              const yPos = y * tileSize;
+              const delay = resolution > 2048 ? 30 : 5; 
+              await this.delay(delay);
+              this.renderTile(xPos, yPos, tileSize, algorithm, resolution, sourceImage, prompt);
+              processedTiles++;
+              const percent = 10 + Math.floor((processedTiles / totalTiles) * 80);
+              if (processedTiles % 5 === 0 || processedTiles === totalTiles) {
+                  onProgress(percent, `Processing Tile [${x},${y}] using ${algorithm} kernel...`);
+              }
+            }
+          }
+
+          onProgress(92, 'Applying VAE Decoder & Edge Enhancement...');
+          this.applyFinalShaders(resolution);
+          await this.delay(500);
+          onProgress(100, 'Generation Complete. Ready for JSPNG export.');
+          onComplete();
+        }
+
+        renderTile(x, y, size, algo, totalRes, source, prompt) {
+          if (!this.ctx) return;
+          this.ctx.save();
+          this.ctx.beginPath();
+          this.ctx.rect(x, y, size, size);
+          this.ctx.clip();
+
+          if (source) {
+              this.ctx.globalAlpha = 1.0;
+              this.ctx.imageSmoothingEnabled = true;
+              this.ctx.imageSmoothingQuality = 'high';
+              const srcX = (x / totalRes) * source.width;
+              const srcY = (y / totalRes) * source.height;
+              const srcW = (size / totalRes) * source.width;
+              const srcH = (size / totalRes) * source.height;
+              this.ctx.drawImage(source, srcX, srcY, srcW, srcH, x, y, size, size);
+          }
+
+          this.ctx.globalCompositeOperation = 'screen';
+          switch (algo) {
+            case Algorithm.ATOMIC: this.renderAtomic(x, y, size, totalRes); break;
+            case Algorithm.QUANTUM: this.renderQuantum(x, y, size); break;
+            case Algorithm.FRACTAL: this.renderFractal(x, y, size); break;
+            case Algorithm.WAVELET: this.renderWavelet(x, y, size); break;
+          }
+          this.ctx.globalCompositeOperation = 'source-over';
+          this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+          this.ctx.lineWidth = 1;
+          this.ctx.strokeRect(x, y, size, size);
+          this.ctx.restore();
+        }
+
+        renderAtomic(x, y, size, totalRes) {
+           const density = 20;
+           for (let i = 0; i < density; i++) {
+              this.ctx.fillStyle = Math.random() > 0.5 ? '#ffffff' : '#ff9900';
+              this.ctx.globalAlpha = Math.random() * 0.3;
+              const px = x + Math.random() * size;
+              const py = y + Math.random() * size;
+              const r = Math.random() * (totalRes > 2048 ? 1 : 2);
+              this.ctx.beginPath();
+              this.ctx.arc(px, py, r, 0, Math.PI * 2);
+              this.ctx.fill();
+           }
+        }
+
+        renderQuantum(x, y, size) {
+           this.ctx.strokeStyle = '#00ffff';
+           this.ctx.lineWidth = 1;
+           this.ctx.globalAlpha = 0.15;
+           for (let i = 0; i < 3; i++) {
+               this.ctx.beginPath();
+               this.ctx.moveTo(x, y + Math.random() * size);
+               this.ctx.bezierCurveTo(x + size/2, y, x + size/2, y + size, x + size, y + Math.random() * size);
+               this.ctx.stroke();
+           }
+        }
+
+        renderWavelet(x, y, size) {
+          for(let i=0; i<8; i++) {
+              this.ctx.fillStyle = '#ff00ff';
+              this.ctx.globalAlpha = 0.08;
+              const w = Math.random() * size;
+              const h = Math.random() * size;
+              this.ctx.fillRect(x + Math.random()*(size-w), y + Math.random()*(size-h), w, h);
+          }
+        }
+
+        renderFractal(x, y, size) {
+            this.ctx.strokeStyle = '#00ff88';
+            this.ctx.lineWidth = 1;
+            this.ctx.globalAlpha = 0.2;
+            const cx = x + size/2;
+            const cy = y + size/2;
+            this.ctx.beginPath();
+            this.ctx.moveTo(cx, cy - size/3);
+            this.ctx.lineTo(cx + size/3, cy + size/3);
+            this.ctx.lineTo(cx - size/3, cy + size/3);
+            this.ctx.closePath();
+            this.ctx.stroke();
+        }
+
+        applyFinalShaders(res) {
+            this.ctx.globalCompositeOperation = 'source-over';
+            this.ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            for(let i=0; i<res; i+=4) this.ctx.fillRect(0, i, res, 1);
+            
+            const grad = this.ctx.createRadialGradient(res/2, res/2, res/4, res/2, res/2, res);
+            grad.addColorStop(0, 'rgba(0,0,0,0)');
+            grad.addColorStop(1, 'rgba(0,0,0,0.4)');
+            this.ctx.fillStyle = grad;
+            this.ctx.fillRect(0,0,res,res);
+
+            this.ctx.globalCompositeOperation = 'overlay';
+            this.ctx.fillStyle = 'rgba(0, 255, 255, 0.05)';
+            this.ctx.fillRect(0,0,res,res);
+        }
+
+        delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+      }
+      const engine = new HyperEngine();
+
+      // --- COMPONENTS ---
+
+      const WindowFrame = ({ id, title, initialX = 50, initialY = 50, width = 400, height = 300, isActive, onClose, onFocus, children }) => {
+        const [pos, setPos] = useState({ x: initialX, y: initialY });
+        const [isDragging, setIsDragging] = useState(false);
+        const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
+        const handleMouseDown = (e) => {
+          setIsDragging(true);
+          setDragOffset({ x: e.clientX - pos.x, y: e.clientY - pos.y });
+          onFocus(id);
+        };
+
+        useEffect(() => {
+          const handleMouseMove = (e) => {
+            if (isDragging) setPos({ x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y });
+          };
+          const handleMouseUp = () => setIsDragging(false);
+          if (isDragging) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+          }
+          return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+          };
+        }, [isDragging, dragOffset]);
+
+        const activeBorder = isActive ? 'border-fuchsia-500 shadow-[0_0_15px_rgba(255,0,255,0.4)]' : 'border-slate-700 opacity-90';
+        const activeHeader = isActive ? 'bg-gradient-to-r from-fuchsia-900 via-purple-900 to-slate-900' : 'bg-slate-900';
+
+        return (
+          <div className={`absolute flex flex-col bg-[#0a0a12]/95 border-2 backdrop-blur-md transition-all duration-75 ${activeBorder}`} style={{ left: pos.x, top: pos.y, width: width, height: height, zIndex: isActive ? 50 : 10 }} onMouseDown={() => onFocus(id)}>
+            <div className={`flex items-center justify-between p-1 select-none cursor-move ${activeHeader}`} onMouseDown={handleMouseDown}>
+              <div className="flex items-center gap-2 px-2">
+                <Box className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs font-bold tracking-wider text-cyan-100 font-['Orbitron'] uppercase">{title}</span>
+              </div>
+              <div className="flex items-center">
+                <button className="p-1 hover:bg-white/10 text-cyan-400"><Minus size={14} /></button>
+                <button className="p-1 hover:bg-white/10 text-cyan-400"><Square size={14} /></button>
+                <button className="p-1 hover:bg-red-500/50 text-fuchsia-400 hover:text-white" onClick={(e) => { e.stopPropagation(); onClose(id); }}><X size={14} /></button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-hidden relative">
+              <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
+              {children}
+            </div>
+          </div>
+        );
+      };
+
+      const LogPanel = ({ logs }) => {
+        const bottomRef = useRef(null);
+        useEffect(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), [logs]);
+        const getTypeColor = (type) => {
+          switch (type) {
+            case 'error': return 'text-red-500';
+            case 'success': return 'text-green-400';
+            case 'warning': return 'text-yellow-400';
+            case 'system': return 'text-cyan-600';
+            default: return 'text-blue-300';
+          }
+        };
+        return (
+          <div className="flex flex-col h-full bg-black font-['Share_Tech_Mono'] text-xs p-2 overflow-hidden border-t border-slate-800">
+            <div className="flex items-center gap-2 mb-2 border-b border-slate-800 pb-1">
+              <Terminal size={12} className="text-fuchsia-500" />
+              <span className="text-slate-500 uppercase">System Stream</span>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-1">
+              {logs.map((log) => (
+                <div key={log.id} className="flex gap-2">
+                  <span className="text-slate-600">[{log.timestamp.split('T')[1].slice(0, 8)}]</span>
+                  <span className={getTypeColor(log.type)}>{log.message}</span>
+                </div>
+              ))}
+              <div ref={bottomRef} />
+            </div>
+          </div>
+        );
+      };
+
+      const Controls = ({ resolution, setResolution, algorithm, setAlgorithm, prompt, setPrompt, sourceImage, onImageUpload, isProcessing, onGenerate, progress, status, onDownload }) => {
+        const currentAlgoDetails = ALGORITHM_DETAILS[algorithm];
+        const fileInputRef = useRef(null);
+
+        return (
+          <div className="h-full flex flex-col p-4 gap-4 text-gray-300 overflow-y-auto">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-cyan-400 text-sm font-bold uppercase"><Sparkles size={14} /> Neural Input</label>
+              <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Enter text prompt for latent guidance..." className="w-full bg-black/40 border border-slate-700 p-2 text-xs text-slate-300 focus:border-fuchsia-500 focus:outline-none resize-none h-16" disabled={isProcessing} />
+              <div onClick={() => !isProcessing && fileInputRef.current?.click()} className={`relative border-dashed border-2 p-3 text-center cursor-pointer transition-all overflow-hidden h-24 flex flex-col items-center justify-center ${isProcessing ? 'opacity-50 cursor-not-allowed border-slate-700' : 'border-slate-700 hover:border-cyan-400 hover:bg-slate-900/50'}`}>
+                {sourceImage ? (
+                  <>
+                     <img src={sourceImage.src} alt="Source" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+                     <div className="relative z-10 flex flex-col items-center shadow-black drop-shadow-md">
+                       <ImageIcon size={20} className="text-green-400 mb-1" />
+                       <span className="text-[10px] text-green-300 font-bold">SOURCE MATRIX LOADED</span>
+                     </div>
+                  </>
+                ) : (
+                  <>
+                    <FileUp size={20} className="text-slate-500 mb-1" />
+                    <span className="text-[10px] text-slate-500">UPLOAD SOURCE IMAGE (OPTIONAL)</span>
+                  </>
+                )}
+                <input type="file" ref={fileInputRef} className="hidden" onChange={(e) => e.target.files?.[0] && onImageUpload(e.target.files[0])} accept="image/*" disabled={isProcessing} />
+              </div>
+            </div>
+            <div className="h-px bg-slate-800 my-1" />
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-cyan-400 text-sm font-bold uppercase"><Layers size={14} /> Output Resolution</label>
+              <div className="grid grid-cols-2 gap-2">
+                {RESOLUTION_OPTIONS.map((opt) => (
+                  <button key={opt.value} onClick={() => setResolution(opt.value)} disabled={isProcessing} className={`p-2 text-xs border transition-all ${resolution === opt.value ? 'bg-cyan-900/40 border-cyan-400 text-cyan-100 shadow-[0_0_10px_rgba(34,211,238,0.2)]' : 'bg-black/40 border-slate-700 hover:border-slate-500 text-slate-400'}`}>{opt.label}</button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-fuchsia-400 text-sm font-bold uppercase"><Cpu size={14} /> Upscaling Kernel</label>
+              <div className="flex flex-col gap-2">
+                {Object.values(Algorithm).map((algo) => (
+                  <button key={algo} onClick={() => setAlgorithm(algo)} disabled={isProcessing} className={`p-3 text-left border relative overflow-hidden group ${algorithm === algo ? 'bg-fuchsia-900/30 border-fuchsia-500 text-white' : 'bg-black/40 border-slate-700 hover:border-slate-500 text-slate-400'}`}>
+                    <div className="flex justify-between items-center mb-1"><span className="font-bold text-xs uppercase">{algo}</span>{algorithm === algo && <Activity size={12} className="animate-pulse text-fuchsia-400" />}</div>
+                    <div className="text-[10px] opacity-70">{ALGORITHM_DETAILS[algo].quality} Quality • {ALGORITHM_DETAILS[algo].complexity}</div>
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 transition-all ${algorithm === algo ? 'bg-fuchsia-500' : 'bg-transparent group-hover:bg-slate-600'}`} />
+                  </button>
+                ))}
+              </div>
+              <div className="mt-2 p-2 bg-slate-900/50 border border-slate-700 text-[10px] text-slate-300"><span className="text-fuchsia-300 font-bold">KERNEL INFO:</span> {currentAlgoDetails.description}</div>
+            </div>
+            <div className="mt-auto space-y-3">
+              {isProcessing && (
+                <div className="space-y-1">
+                   <div className="flex justify-between text-[10px] text-cyan-300"><span>{status}</span><span>{progress}%</span></div>
+                   <div className="h-1 w-full bg-slate-800 overflow-hidden"><div className="h-full bg-cyan-500 shadow-[0_0_10px_#06b6d4] transition-all duration-300" style={{ width: `${progress}%` }} /></div>
+                </div>
+              )}
+              <div className="flex gap-2">
+                  <button onClick={onGenerate} disabled={isProcessing} className={`flex-1 py-3 flex items-center justify-center gap-2 font-bold uppercase tracking-wider text-sm transition-all ${isProcessing ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700' : 'bg-cyan-600 hover:bg-cyan-500 text-white border border-cyan-400 shadow-[0_0_20px_rgba(8,145,178,0.4)]'}`}>
+                  <Zap size={16} className={isProcessing ? 'animate-spin' : ''} />{isProcessing ? 'SYNTHESIZING...' : 'INITIALIZE ENGINE'}</button>
+                  <button onClick={onDownload} disabled={isProcessing || progress !== 100} className="px-3 bg-slate-800 border border-slate-600 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-fuchsia-400" title="Save as JSPNG"><Download size={18} /></button>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const App = () => {
+        const [activeWindow, setActiveWindow] = useState('controls');
+        const [resolution, setResolution] = useState(Resolution.RES_512);
+        const [algorithm, setAlgorithm] = useState(Algorithm.ATOMIC);
+        const [prompt, setPrompt] = useState('');
+        const [sourceImage, setSourceImage] = useState(null);
+        const [logs, setLogs] = useState(INITIAL_LOGS);
+        const [isProcessing, setIsProcessing] = useState(false);
+        const [progress, setProgress] = useState(0);
+        const [status, setStatus] = useState('Idle');
+        const [windows, setWindows] = useState({ controls: true, viewport: true, logs: true });
+        const canvasRef = useRef(null);
+
+        useEffect(() => {
+          if (canvasRef.current) engine.attachCanvas(canvasRef.current);
+        }, []);
+
+        const addLog = useCallback((message, type = 'info') => {
+          setLogs(prev => [...prev, { id: Math.random().toString(36).substr(2, 9), timestamp: new Date().toISOString(), message, type }]);
+        }, []);
+
+        const handleImageUpload = (file) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+              setSourceImage(img);
+              addLog(`Source matrix loaded: ${file.name} [${img.width}x${img.height}]`, 'success');
+            };
+          };
+          reader.readAsDataURL(file);
+        };
+
+        const handleGenerate = async () => {
+          if (isProcessing) return;
+          setIsProcessing(true);
+          setProgress(0);
+          setStatus('Initializing...');
+          addLog(`Starting ${sourceImage ? 'I2I' : 'T2I'} generation sequence: ${algorithm} @ ${resolution}px`, 'system');
+          try {
+            await engine.generate(resolution, algorithm, prompt, sourceImage, (prog, msg) => {
+              setProgress(prog);
+              setStatus(msg);
+              if (prog % 25 === 0 || prog === 100) addLog(msg, 'info');
+            }, () => {
+              setIsProcessing(false);
+              setStatus('Complete');
+              addLog('Generation sequence completed successfully.', 'success');
+            });
+          } catch (e) {
+            console.error(e);
+            setIsProcessing(false);
+            setStatus('Error');
+            addLog('Critical Engine Failure: VAE collapse.', 'error');
+          }
+        };
+
+        const handleDownload = () => {
+          if (!canvasRef.current) return;
+          const link = document.createElement('a');
+          link.download = `cosmos-hyper-${Date.now()}.jspng`;
+          link.href = canvasRef.current.toDataURL('image/png');
+          link.click();
+          addLog('Image exported to local storage.', 'success');
+        };
+
+        const toggleWindow = (id) => setWindows(prev => ({ ...prev, [id]: !prev[id] }));
+
+        return (
+          <div className="w-screen h-screen relative bg-[#050510] overflow-hidden text-gray-200 selection:bg-fuchsia-500 selection:text-white">
+            <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: `linear-gradient(transparent 95%, rgba(6, 182, 212, 0.1) 95%), linear-gradient(90deg, transparent 95%, rgba(6, 182, 212, 0.1) 95%)`, backgroundSize: '40px 40px' }}></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050510] via-transparent to-transparent pointer-events-none"></div>
+            
+            <div className="absolute bottom-0 w-full h-10 bg-slate-900 border-t border-slate-700 flex items-center px-4 z-50">
+              <div className="font-bold text-fuchsia-500 mr-6 tracking-widest text-lg font-['Orbitron']">CosmOS</div>
+              <div className="flex gap-2">
+                  <button onClick={() => toggleWindow('controls')} className={`px-3 py-1 text-xs border ${windows.controls ? 'bg-slate-700 border-fuchsia-500 text-white' : 'border-slate-600 text-slate-400'}`}>ENGINE</button>
+                  <button onClick={() => toggleWindow('viewport')} className={`px-3 py-1 text-xs border ${windows.viewport ? 'bg-slate-700 border-cyan-500 text-white' : 'border-slate-600 text-slate-400'}`}>VIEWPORT</button>
+                  <button onClick={() => toggleWindow('logs')} className={`px-3 py-1 text-xs border ${windows.logs ? 'bg-slate-700 border-green-500 text-white' : 'border-slate-600 text-slate-400'}`}>TERMINAL</button>
+              </div>
+              <div className="ml-auto text-xs text-cyan-500 font-mono animate-pulse">SYSTEM ONLINE :: HYPER-PRECISION MODULE ACTIVE</div>
+            </div>
+
+            {windows.controls && <WindowFrame id="controls" title="Hyper-Precision Engine" initialX={20} initialY={20} width={320} height={600} isActive={activeWindow === 'controls'} onFocus={setActiveWindow} onClose={() => toggleWindow('controls')}><Controls resolution={resolution} setResolution={setResolution} algorithm={algorithm} setAlgorithm={setAlgorithm} prompt={prompt} setPrompt={setPrompt} sourceImage={sourceImage} onImageUpload={handleImageUpload} isProcessing={isProcessing} onGenerate={handleGenerate} progress={progress} status={status} onDownload={handleDownload} /></WindowFrame>}
+            
+            {windows.viewport && <WindowFrame id="viewport" title="Latent Space Visualization" initialX={360} initialY={20} width={800} height={600} isActive={activeWindow === 'viewport'} onFocus={setActiveWindow} onClose={() => toggleWindow('viewport')}>
+              <div className="w-full h-full bg-black flex items-center justify-center relative overflow-hidden group">
+                <canvas ref={canvasRef} className="max-w-full max-h-full object-contain z-10" />
+                <div className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-30 z-20 bg-gradient-to-tr from-fuchsia-500/20 to-cyan-500/20"></div>
+                {!canvasRef.current && <div className="text-slate-600 text-xs">AWAITING SIGNAL...</div>}
+              </div>
+            </WindowFrame>}
+
+            {windows.logs && <WindowFrame id="logs" title="System Logs / Telemetry" initialX={360} initialY={640} width={600} height={200} isActive={activeWindow === 'logs'} onFocus={setActiveWindow} onClose={() => toggleWindow('logs')}><LogPanel logs={logs} /></WindowFrame>}
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

@@ -66,6 +66,67 @@ class HyperEngine {
         return this.canvas.toDataURL("image/png");
     }
 
+    // Add this method to the HyperEngine class in EngineService.js
+
+    /**
+     * Upscales all images with data-upscale="true" attribute
+     */
+    async upscaleAll() {
+        // Select all images that requested upscaling
+        const images = document.querySelectorAll<HTMLImageElement>('img[data-upscale="true"]');
+    
+        if (images.length === 0) {
+            console.log('[HyperEngine] No images found with data-upscale="true"');
+            return;
+        }
+    
+        images.forEach(async (img) => {
+            if (img.dataset.cosmosProcessed) return;
+            
+            // 1. Apply loading state style
+            img.dataset.cosmosProcessed = "processing";
+            const originalTransition = img.style.transition;
+            
+            img.style.transition = "filter 0.5s ease, opacity 0.5s ease";
+            img.style.filter = "blur(4px) grayscale(50%)";
+            img.style.opacity = "0.7";
+    
+            // 2. Parse Config
+            const scale = parseInt(img.dataset.scale || "2");
+            const res = img.naturalWidth * scale; // Calculate resolution based on scale
+            const algo = "ATOMIC"; // Default algorithm
+    
+            try {
+                // Ensure image is loaded for reading
+                if (!img.complete) {
+                    await new Promise((resolve) => {
+                      img.onload = () => resolve(true);
+                    });
+                }
+    
+                // 3. Generate Upscale
+                const resultDataUrl = await this.generate(res, algo, img);
+                
+                if (resultDataUrl) {
+                    // 4. Apply Result
+                    img.src = resultDataUrl;
+                    img.dataset.cosmosProcessed = "complete";
+                    console.log(`[HyperEngine] Upscaled image by ${scale}x using ${algo}.`);
+                }
+    
+            } catch (err) {
+                console.error("[HyperEngine] Upscale failed:", err);
+            } finally {
+                // 5. Cleanup Styles
+                img.style.filter = "none";
+                img.style.opacity = "1";
+                setTimeout(() => {
+                     img.style.transition = originalTransition;
+                }, 500);
+            }
+        });
+    }
+
     renderTile(x, y, size, algo, totalRes, source) {
         if (!this.ctx) return;
 
@@ -234,3 +295,4 @@ if (document.readyState === "loading") {
 }
 
 export { HyperEngine, initCosmosWidget };
+

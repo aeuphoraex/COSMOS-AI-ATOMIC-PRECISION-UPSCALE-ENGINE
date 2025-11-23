@@ -1,80 +1,644 @@
-#COSMOS AI: ATOMIC PRECISION UPSCALE ENGINE
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Atomic Precision Upscale Engine - Advanced Demo</title>
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --light-color: #ecf0f1;
+      --dark-color: #34495e;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      color: var(--dark-color);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      font-weight: 300;
+    }
+    
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--secondary-color);
+      margin-bottom: 20px;
+    }
+    
+    .controls {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .control-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    select, button {
+      padding: 10px 15px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+    }
+    
+    select {
+      background-color: white;
+      min-width: 200px;
+    }
+    
+    button {
+      background-color: var(--secondary-color);
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      border: none;
+    }
+    
+    button:hover {
+      background-color: #2980b9;
+    }
+    
+    button:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+    }
+    
+    .progress-container {
+      width: 100%;
+      height: 6px;
+      background-color: #eee;
+      border-radius: 3px;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background-color: var(--success-color);
+      width: 0;
+      transition: width 0.3s;
+    }
+    
+    .status-message {
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--dark-color);
+    }
+    
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    
+    .image-card {
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .image-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .image-container {
+      position: relative;
+      overflow: hidden;
+      height: 250px;
+    }
+    
+    .image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    
+    .image-container:hover img {
+      transform: scale(1.05);
+    }
+    
+    .image-info {
+      padding: 15px;
+    }
+    
+    .image-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    .image-details {
+      font-size: 14px;
+      color: #666;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .status-ready {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .status-processing {
+      background-color: #fff8e1;
+      color: #ff8f00;
+    }
+    
+    .status-complete {
+      background-color: #e8f5e9;
+      color: #388e3c;
+    }
+    
+    .status-error {
+      background-color: #ffebee;
+      color: #d32f2f;
+    }
+    
+    .view-full-btn {
+      display: inline-block;
+      margin-top: 10px;
+      color: var(--secondary-color);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .view-full-btn:hover {
+      text-decoration: underline;
+    }
+    
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--secondary-color);
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+    
+    .tab.active {
+      border-bottom-color: var(--secondary-color);
+      color: var(--secondary-color);
+      font-weight: 500;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      background-color: white;
+      border-radius: 4px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      z-index: 1000;
+    }
+    
+    .notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .notification.success {
+      border-left: 4px solid var(--success-color);
+    }
+    
+    .notification.error {
+      border-left: 4px solid var(--accent-color);
+    }
+  </style>
+</head>
 
-A cutting-edge, client-side JavaScript engine for upscaling images directly in the browser. This project demonstrates a serverless approach to AI-powered image enhancement, leveraging advanced algorithms and modern web APIs to deliver stunning results without any backend processing.
-
-KEY FEATURES
-
-Serverless & Standalone: Runs entirely in the browser. No server, no API keys, no uploads required.
-High-Resolution Upscaling: Supports a wide range of target resolutions, from 256x256 up to a massive 8192x8192 pixels.
-Multiple AI-Inspired Algorithms: Choose from unique upscaling kernels like Atomic Super-Resolution, Quantum Frequency, and more.
-Blob-Based Processing: Intelligently converts remote images to Blob objects to bypass CORS restrictions and ensure smooth processing.
-Beautiful Web 2.0 Demos: Includes both a simple widget and a hyper-advanced, interactive demo showcasing all features.
-Zero Dependencies: The demos are self-contained HTML files that dynamically load the core engine from a CDN.
-
-LIVE DEMO
-
-See the engine in action with our interactive demos!
-
-QUICK START
-The easiest way to see the engine work is to run one of the demos locally. No installation needed!
-
-Clone or download this repository.
-
-git clone https://github.com/aeuphoraex/COSMOS-AI-ATOMIC-PRECISION-UPSCALE-ENGINE.git
-
-Open a demo file in your favorite modern web browser (Chrome, Firefox, Safari, Edge).
-
-Core Engine (EngineServiceFinalv1.01.js): The heart of the upscaling logic is hosted on a CDN (jsDelivr). It contains the HyperEngine class with methods for tile-based rendering, procedural detail generation, and final shader effects.
-
-Controller (The HTML File): The standalone HTML file acts as the controller. It dynamically imports the remote engine.
-
-Dynamic Method Extension: Since the core engine is a generic module, the HTML file cleverly adds the missing upscaleAll method to the HyperEngine class at runtime. This allows the core engine to remain lightweight while the demos provide the specific implementation logic.
-
-Blob Conversion: To handle images from different origins (like Picsum Photos) without running into CORS errors, the demo first fetches the image, converts it into a Blob, and then creates a local Image object from that Blob. This ensures the engine has full, unrestricted access to the pixel data.
-
-USAGE
-To upscale an image on your own page, simply add the data-upscale attribute to any <img> tag.
-
-<img src="path/to/your/image.jpg"
-data-upscale="true"
-data-scale="4"
-crossorigin="anonymous">
-
-Attributes: 
-
-data-upscale="true" (Required): Flags the image to be processed by the engine.
-
-data-scale="N" (Optional): The integer scale factor (e.g., 2 for 2x, 4 for 4x). Defaults to 2.
-
-crossorigin="anonymous" (Recommended): Required for fetching images from external domains (CDNs).
-
-Then, import the engine and call the upscaleAll() method:
-
-<script type="module">
-  import { HyperEngine } from "https://cdn.jsdelivr.net/gh/aeuphoraex/COSMOS-AI-ATOMIC-PRECISION-UPSCALE-ENGINE/EngineServiceFinalv1.01.js";
-  const engine = new HyperEngine();
-  engine.upscaleAll(); // See our demos for the full implementation of this method
-</script>
-
-Atomic Super-Resolution (ATOMIC): Simulates sub-pixel atomic particles for sharp, detailed enhancements. (Default)
-Quantum Frequency (QUANTUM): Applies frequency wave patterns for a smooth, almost liquid-like detail reconstruction.
-Wavelet Decomposition (WAVELET): Uses block-based decomposition to add structural detail and texture.
-Fractal Upsampling (FRACTAL): Employs recursive geometric patterns for a unique, artistic enhancement.
-
-TROUBLESHOOTING & FAQ
-Q: I get an error: Uncaught TypeError: engine.upscaleAll is not a function
-A: This error occurs if the upscaleAll method hasn't been defined. The core engine file on the CDN does not include it by design. You must use one of the provided demo HTML files, as they contain the necessary code to dynamically add this method to the HyperEngine class.
-
-Q: I get a CORS error when trying to process an image.
-A: This is a common browser security issue. Our demos solve this by: Adding the crossorigin="anonymous" attribute to the <img> tag. Using fetch() to convert the image into a Blob before processing. Ensure you are following this pattern for any external images.
-
-Q: The upscaling process is slow.
-A: The engine performs complex calculations on the client side. Processing time depends on:
-
-The target resolution (8192x8192 will take significantly longer than 1024x1024).
-The power of your device's CPU/GPU.
-The number of images being processed concurrently.
-The engine includes micro-delays to prevent the browser UI from freezing.
-
-LICENSE
-Distributed under the MIT License. See LICENSE for more information.
+<body>
+  <div class="container">
+    <header>
+      <h1>Atomic Precision Upscale Engine</h1>
+      <p class="subtitle">Hyper-Advanced Image Upscaling Demo</p>
+    </header>
+    
+    <div class="controls">
+      <div class="control-group">
+        <label for="resolution">Target Resolution:</label>
+        <select id="resolution">
+          <option value="256">256x256</option>
+          <option value="512">512x512</option>
+          <option value="1024">1024x1024</option>
+          <option value="2048" selected>2048x2048</option>
+          <option value="4096">4096x4096</option>
+          <option value="8192">8192x8192</option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <label for="algorithm">Upscaling Algorithm:</label>
+        <select id="algorithm">
+          <option value="ATOMIC" selected>Atomic Super-Resolution</option>
+          <option value="QUANTUM">Quantum Frequency</option>
+          <option value="WAVELET">Wavelet Decomposition</option>
+          <option value="FRACTAL">Fractal Upsampling</option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <button id="upscaleBtn">Upscale All Images</button>
+      </div>
+    </div>
+    
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <div class="status-message" id="statusMessage">Ready to upscale images</div>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="nature">Nature</div>
+      <div class="tab" data-tab="architecture">Architecture</div>
+      <div class="tab" data-tab="portraits">Portraits</div>
+      <div class="tab" data-tab="abstract">Abstract</div>
+    </div>
+    
+    <div class="tab-content active" id="nature">
+      <div class="image-grid">
+        <!-- Nature images will be loaded here -->
+      </div>
+    </div>
+    
+    <div class="tab-content" id="architecture">
+      <div class="image-grid">
+        <!-- Architecture images will be loaded here -->
+      </div>
+    </div>
+    
+    <div class="tab-content" id="portraits">
+      <div class="image-grid">
+        <!-- Portrait images will be loaded here -->
+      </div>
+    </div>
+    
+    <div class="tab-content" id="abstract">
+      <div class="image-grid">
+        <!-- Abstract images will be loaded here -->
+      </div>
+    </div>
+  </div>
+  
+  <div class="notification" id="notification"></div>
+  
+  <script type="module">
+    // Import the HyperEngine class from the remote JS file
+    import('https://cdn.jsdelivr.net/gh/aeuphoraex/COSMOS-AI-ATOMIC-PRECISION-UPSCALE-ENGINE/EngineServiceFinalv1.01.js')
+      .then(module => {
+        // Get the HyperEngine class from the imported module
+        const { HyperEngine } = module;
+        
+        // Extend the HyperEngine class with the missing upscaleAll method
+        HyperEngine.prototype.upscaleAll = async function(resolution, algorithm, progressCallback) {
+          console.log(`[HyperEngine] upscaleAll function started with resolution: ${resolution}, algorithm: ${algorithm}`);
+          
+          // Select all images that requested upscaling
+          const nodeList = document.querySelectorAll('.tab-content.active img[data-upscale="true"]');
+          
+          if (nodeList.length === 0) {
+            console.log('[HyperEngine] No images found with data-upscale="true"');
+            return;
+          }
+          
+          let processedCount = 0;
+          const totalCount = nodeList.length;
+          
+          // Process each image
+          for (let i = 0; i < nodeList.length; i++) {
+            const img = nodeList[i];
+            const cardId = img.dataset.cardId;
+            const card = document.getElementById(cardId);
+            
+            // Update status
+            updateCardStatus(card, 'processing', 'Processing...');
+            
+            try {
+              // Convert image to blob
+              const blob = await fetch(img.src, { mode: 'cors' })
+                .then(response => response.blob())
+                .catch(err => {
+                  throw new Error(`Failed to fetch image: ${err.message}`);
+                });
+              
+              // Create a new image from the blob
+              const blobImg = new Image();
+              blobImg.crossOrigin = 'anonymous';
+              
+              await new Promise((resolve, reject) => {
+                blobImg.onload = resolve;
+                blobImg.onerror = () => reject(new Error('Failed to load blob as image'));
+                blobImg.src = URL.createObjectURL(blob);
+              });
+              
+              // Apply loading state
+              const imageContainer = card.querySelector('.image-container');
+              imageContainer.classList.add('loading');
+              
+              // Generate upscale
+              console.log(`[HyperEngine] Upscaling image #${img.id} to ${resolution}px...`);
+              const resultDataUrl = await this.generate(resolution, algorithm, blobImg);
+              
+              if (resultDataUrl) {
+                // Create a link to the full resolution image
+                const link = document.createElement('a');
+                link.href = resultDataUrl;
+                link.target = '_blank';
+                link.className = 'view-full-btn';
+                link.textContent = `View Full Resolution (${resolution}x${resolution})`;
+                
+                // Remove existing link if any
+                const existingLink = card.querySelector('.view-full-btn');
+                if (existingLink) {
+                  existingLink.remove();
+                }
+                
+                // Add the new link
+                card.querySelector('.image-info').appendChild(link);
+                
+                // Update the image src
+                img.src = resultDataUrl;
+                img.dataset.cosmosProcessed = "complete";
+                
+                // Update status
+                updateCardStatus(card, 'complete', 'Upscaled Successfully');
+                
+                console.log(`[HyperEngine] Successfully upscaled image #${img.id}.`);
+              }
+              
+              // Remove loading state
+              imageContainer.classList.remove('loading');
+              
+              // Revoke the blob URL to free memory
+              URL.revokeObjectURL(blobImg.src);
+              
+            } catch (err) {
+              console.error("[HyperEngine] Upscale failed for image:", img, err);
+              img.dataset.cosmosProcessed = "error";
+              
+              // Update status
+              updateCardStatus(card, 'error', `Error: ${err.message}`);
+            }
+            
+            // Update progress
+            processedCount++;
+            const progress = (processedCount / totalCount) * 100;
+            progressCallback(progress, processedCount, totalCount);
+          }
+        };
+        
+        // Initialize the engine
+        const engine = new HyperEngine();
+        
+        // Image data for different categories
+        const imageData = {
+          nature: [
+            { id: 'nature1', seed: 'forest-path', title: 'Forest Path' },
+            { id: 'nature2', seed: 'mountain-lake', title: 'Mountain Lake' },
+            { id: 'nature3', seed: 'sunset-beach', title: 'Sunset Beach' },
+            { id: 'nature4', seed: 'waterfall', title: 'Waterfall' },
+            { id: 'nature5', seed: 'desert-dunes', title: 'Desert Dunes' },
+            { id: 'nature6', seed: 'autumn-forest', title: 'Autumn Forest' }
+          ],
+          architecture: [
+            { id: 'arch1', seed: 'modern-building', title: 'Modern Building' },
+            { id: 'arch2', seed: 'historic-castle', title: 'Historic Castle' },
+            { id: 'arch3', seed: 'city-skyline', title: 'City Skyline' },
+            { id: 'arch4', seed: 'bridge-structure', title: 'Bridge Structure' },
+            { id: 'arch5', seed: 'glass-tower', title: 'Glass Tower' },
+            { id: 'arch6', seed: 'ancient-temple', title: 'Ancient Temple' }
+          ],
+          portraits: [
+            { id: 'portrait1', seed: 'woman-portrait', title: 'Woman Portrait' },
+            { id: 'portrait2', seed: 'man-portrait', title: 'Man Portrait' },
+            { id: 'portrait3', seed: 'child-portrait', title: 'Child Portrait' },
+            { id: 'portrait4', seed: 'elderly-portrait', title: 'Elderly Portrait' },
+            { id: 'portrait5', seed: 'couple-portrait', title: 'Couple Portrait' },
+            { id: 'portrait6', seed: 'group-portrait', title: 'Group Portrait' }
+          ],
+          abstract: [
+            { id: 'abstract1', seed: 'colorful-patterns', title: 'Colorful Patterns' },
+            { id: 'abstract2', seed: 'geometric-shapes', title: 'Geometric Shapes' },
+            { id: 'abstract3', seed: 'fluid-art', title: 'Fluid Art' },
+            { id: 'abstract4', seed: 'digital-fractal', title: 'Digital Fractal' },
+            { id: 'abstract5', seed: 'minimalist-design', title: 'Minimalist Design' },
+            { id: 'abstract6', seed: 'textural-composition', title: 'Textural Composition' }
+          ]
+        };
+        
+        // Function to update card status
+        function updateCardStatus(card, status, message) {
+          const statusBadge = card.querySelector('.status-badge');
+          statusBadge.className = `status-badge status-${status}`;
+          statusBadge.textContent = message;
+        }
+        
+        // Function to create image cards
+        function createImageCards(category) {
+          const container = document.querySelector(`#${category} .image-grid`);
+          container.innerHTML = '';
+          
+          imageData[category].forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            card.id = `card-${item.id}`;
+            
+            card.innerHTML = `
+              <div class="image-container">
+                <div class="loading-overlay" style="display: none;">
+                  <div class="spinner"></div>
+                </div>
+                <img src="https://picsum.photos/seed/${item.seed}/256/256"
+                     data-upscale="true"
+                     id="${item.id}"
+                     crossorigin="anonymous">
+              </div>
+              <div class="image-info">
+                <div class="image-title">${item.title}</div>
+                <div class="image-details">
+                  <span>Original: 256x256</span>
+                  <span class="status-badge status-ready">Ready to upscale</span>
+                </div>
+              </div>
+            `;
+            
+            // Set card ID on the image for reference
+            const img = card.querySelector('img');
+            img.dataset.cardId = card.id;
+            
+            container.appendChild(card);
+          });
+        }
+        
+        // Initialize image cards for all categories
+        Object.keys(imageData).forEach(category => {
+          createImageCards(category);
+        });
+        
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+          tab.addEventListener('click', () => {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding content
+            tab.classList.add('active');
+            const tabId = tab.dataset.tab;
+            document.getElementById(tabId).classList.add('active');
+          });
+        });
+        
+        // Progress update function
+        function updateProgress(percent, processed, total) {
+          document.getElementById('progressBar').style.width = `${percent}%`;
+          document.getElementById('statusMessage').textContent = 
+            `Processing: ${processed} of ${total} images (${Math.round(percent)}% complete)`;
+          
+          if (percent === 100) {
+            showNotification('All images upscaled successfully!', 'success');
+            document.getElementById('statusMessage').textContent = 
+              'All images have been upscaled successfully';
+          }
+        }
+        
+        // Notification function
+        function showNotification(message, type) {
+          const notification = document.getElementById('notification');
+          notification.textContent = message;
+          notification.className = `notification ${type} show`;
+          
+          setTimeout(() => {
+            notification.classList.remove('show');
+          }, 3000);
+        }
+        
+        // Add click event to the upscale button
+        document.getElementById('upscaleBtn').addEventListener('click', async () => {
+          const resolution = parseInt(document.getElementById('resolution').value);
+          const algorithm = document.getElementById('algorithm').value;
+          
+          // Disable button during processing
+          const btn = document.getElementById('upscaleBtn');
+          btn.disabled = true;
+          btn.textContent = 'Processing...';
+          
+          // Reset progress
+          updateProgress(0, 0, 0);
+          
+          try {
+            await engine.upscaleAll(resolution, algorithm, updateProgress);
+          } catch (err) {
+            console.error('Upscaling failed:', err);
+            showNotification('Upscaling failed: ' + err.message, 'error');
+          } finally {
+            // Re-enable button
+            btn.disabled = false;
+            btn.textContent = 'Upscale All Images';
+          }
+        });
+        
+        console.log('Engine initialized and ready. Select images and click the upscale button to begin.');
+      })
+      .catch(err => {
+        console.error('Failed to load the HyperEngine module:', err);
+        showNotification('Failed to load the upscaling engine', 'error');
+      });
+  </script>
+</body>
+</html>

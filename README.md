@@ -1,316 +1,222 @@
-<div style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
-<h1 style="color: #333; text-align: center;">Atomic Precision Upscale Engine Demo</h1>
-<div style="text-align: center;">
-  <button id="upscaleBtn" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin: 20px;">Upscale All Images</button>
-</div>
-<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center;">
-  <div style="margin: 20px; padding: 15px; background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
-    <img src="https://picsum.photos/seed/demo1/256/256" data-upscale="true" data-scale="4" id="demo1" crossorigin="anonymous" style="width: 300px; height: 300px; object-fit: cover; border: 2px solid #444; margin-bottom: 10px;">
-    <div id="status-demo1" style="margin-top: 10px; font-size: 14px; color: #666;">Ready to upscale</div>
-  </div>
-  <div style="margin: 20px; padding: 15px; background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
-    <img src="https://picsum.photos/seed/demo2/256/256" data-upscale="true" data-scale="2" id="demo2" crossorigin="anonymous" style="width: 300px; height: 300px; object-fit: cover; border: 2px solid #444; margin-bottom: 10px;">
-    <div id="status-demo2" style="margin-top: 10px; font-size: 14px; color: #666;">Ready to upscale</div>
-  </div>
-</div>
-<script>// ==========================================
-// CosmOS AI: Hyper-Precision Engine Widget
-// ==========================================
+<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%); color: #e0e0e0; padding: 40px; border-radius: 15px; max-width: 1200px; margin: 0 auto; box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);">
 
-// CONSTANTS
-const Resolution = {
-    RES_256: 256,
-    RES_512: 512,
-    RES_1024: 1024,
-    RES_2048: 2048,
-    RES_4096: 4096,
-    RES_8192: 8192
-};
+<h1 style="text-align: center; font-size: 3em; margin-bottom: 20px; background: linear-gradient(45deg, #00ffff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);">🌌 COSMOS AI: HYPER-PRECISION ENGINE 🌌</h1>
 
-const Algorithm = {
-    QUANTUM: "Quantum Frequency",
-    WAVELET: "Wavelet Decomposition",
-    FRACTAL: "Fractal Upsampling",
-    ATOMIC: "Atomic Super-Resolution"
-};
+<hr style="border: 1px solid rgba(0, 255, 255, 0.3); margin: 30px 0;">
 
-// ==========================================
-// HYPER ENGINE
-// ==========================================
-class HyperEngine {
-    constructor() {
-        this.canvas = document.createElement("canvas");
-        this.ctx = this.canvas.getContext("2d", { willReadFrequently: true });
-    }
+<h2 style="color: #00ffff; font-size: 2em; margin-bottom: 20px; border-left: 4px solid #ff00ff; padding-left: 15px;">🚀 QUANTUM OVERVIEW</h2>
 
-    async generate(resolution, algorithm, img) {
-        if (!this.ctx) return null;
+<p style="font-size: 1.1em; line-height: 1.8; margin-bottom: 20px;">The <strong style="color: #ff00ff;">CosmOS AI Hyper-Precision Engine</strong> is an advanced image upscaling system that transforms low-resolution images into high-fidelity visual masterpieces using sophisticated AI algorithms. This revolutionary technology operates entirely in the browser, processing images through multiple quantum-inspired rendering techniques to achieve unprecedented detail enhancement.</p>
 
-        this.canvas.width = resolution;
-        this.canvas.height = resolution;
+<h2 style="color: #00ffff; font-size: 2em; margin-bottom: 20px; border-left: 4px solid #ff00ff; padding-left: 15px;">⚛️ COMPONENT ARCHITECTURE</h2>
 
-        // Background
-        this.ctx.fillStyle = "#050510";
-        this.ctx.fillRect(0, 0, resolution, resolution);
+<h3 style="color: #ff00ff; font-size: 1.5em; margin-bottom: 15px;">🧬 Core Engine (HyperEngine)</h3>
 
-        // Latent representation
-        const latent = resolution / 32;
-        this.ctx.imageSmoothingEnabled = false;
+<p style="margin-bottom: 15px;">The <code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">HyperEngine</code> class serves as the quantum processing unit that handles all upscaling operations:</p>
 
-        this.ctx.drawImage(img, 0, 0, latent, latent);
-        this.ctx.drawImage(this.canvas, 0, 0, latent, latent, 0, 0, resolution, resolution);
+<pre style="background: rgba(0, 0, 0, 0.5); padding: 15px; border-radius: 5px; border: 1px solid rgba(0, 255, 255, 0.3); overflow-x: auto; margin-bottom: 20px;"><code style="color: #00ff00;">class HyperEngine {
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D | null;
+  
+  constructor() {
+    this.canvas = document.createElement('canvas');
+    this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
+  }
+}</code></pre>
 
-        this.ctx.fillStyle = "rgba(0,0,0,0.5)";
-        this.ctx.fillRect(0, 0, resolution, resolution);
+<p style="margin-bottom: 20px;">The engine operates through a sophisticated multi-stage process:</p>
 
-        const tileSize = 256;
-        const tilesX = Math.ceil(resolution / tileSize);
-        const tilesY = Math.ceil(resolution / tileSize);
+<h4 style="color: #00ffff; margin-bottom: 10px;">🌊 Stage 1: Latent Space Initialization</h4>
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li>Creates a dark matter background (#050510) as the foundation</li>
+  <li>Prepares the quantum canvas for image transformation</li>
+</ul>
 
-        // Tile-by-tile incremental rendering (LIVE FEEL)
-        for (let y = 0; y < tilesY; y++) {
-            for (let x = 0; x < tilesX; x++) {
-                await new Promise(r => setTimeout(r, 1));
-                this.renderTile(x * tileSize, y * tileSize, tileSize, algorithm, resolution, img);
-            }
-        }
+<h4 style="color: #00ffff; margin-bottom: 10px;">🧬 Stage 2: Latent Encoding</h4>
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li>Compresses the source image to a latent representation (1/32 of target size)</li>
+  <li>Expands the latent representation to create a base structure</li>
+  <li>Applies an interference mask to prepare for detail injection</li>
+</ul>
 
-        // Final shader
-        this.applyFinalShaders(resolution);
+<h4 style="color: #00ffff; margin-bottom: 10px;">⚛️ Stage 3: Parallel Tile Processing</h4>
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li>Divides the image into 256x256 pixel tiles for parallel processing</li>
+  <li>Applies micro-delays to prevent UI freezing</li>
+  <li>Renders each tile with the selected algorithm</li>
+</ul>
 
-        return this.canvas.toDataURL("image/png");
-    }
+<h4 style="color: #00ffff; margin-bottom: 10px;">🌟 Stage 4: Final Shader Application</h4>
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li>Applies scanline effects for enhanced detail</li>
+  <li>Adds vignette/ambient occlusion for depth</li>
+  <li>Implements chromatic aberration/glow overlay for visual enhancement</li>
+</ul>
 
-    // Add this method to the HyperEngine class in EngineService.js
+<h3 style="color: #ff00ff; font-size: 1.5em; margin-bottom: 15px;">🔬 Algorithmic Processors</h3>
 
-    /**
-     * Upscales all images with data-upscale="true" attribute
-     */
-    async upscaleAll() {
-        // Select all images that requested upscaling
-        const images = document.querySelectorAll<HTMLImageElement>('img[data-upscale="true"]');
+<p style="margin-bottom: 20px;">The engine includes four distinct upscaling algorithms:</p>
+
+<h4 style="color: #00ffff; margin-bottom: 10px;">🧪 ATOMIC Super-Resolution</h4>
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li>Simulates sub-pixel atomic particles</li>
+  <li>Generates random white and orange particles with varying transparency</li>
+  <li>Creates fine detail at the atomic level</li>
+</ul>
+
+<h4 style="color: #00ffff; margin-bottom: 10px;">🌊 QUANTUM Frequency</h4>
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li>Simulates frequency waves through bezier curves</li>
+  <li>Applies cyan-colored wave patterns</li>
+  <li>Enhances image through frequency domain manipulation</li>
+</ul>
+
+<h4 style="color: #00ffff; margin-bottom: 10px;">📊 WAVELET Decomposition</h4>
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li>Simulates block decomposition</li>
+  <li>Applies magenta-colored rectangular overlays</li>
+  <li>Enhances structural details through wavelet transformation</li>
+</ul>
+
+<h4 style="color: #00ffff; margin-bottom: 10px;">🔷 FRACTAL Upsampling</h4>
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li>Simulates recursive geometry</li>
+  <li>Creates green triangular patterns</li>
+  <li>Enhances detail through fractal mathematics</li>
+</ul>
+
+<h2 style="color: #00ffff; font-size: 2em; margin-bottom: 20px; border-left: 4px solid #ff00ff; padding-left: 15px;">🛠️ INSTALLATION & EXECUTION</h2>
+
+<h3 style="color: #ff00ff; font-size: 1.5em; margin-bottom: 15px;">📥 Local Setup (No Server Required)</h3>
+
+<p style="margin-bottom: 20px;">The CosmOS AI Hyper-Precision Engine operates entirely in the browser without requiring a server:</p>
+
+<ol style="margin-bottom: 20px; padding-left: 20px;">
+  <li style="margin-bottom: 10px;"><strong>Clone the Repository</strong>
+    <pre style="background: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 5px; border: 1px solid rgba(0, 255, 255, 0.3); margin-top: 5px;"><code style="color: #00ff00;">git clone https://github.com/aeuphoraex/COSMOS-AI-ATOMIC-PRECISION-UPSCALE-ENGINE.git
+cd COSMOS-AI-ATOMIC-PRECISION-UPSCALE-ENGINE</code></pre>
+  </li>
+  <li style="margin-bottom: 10px;"><strong>Direct Browser Launch</strong>
+    <ul style="margin-top: 5px; padding-left: 20px;">
+      <li>Simply open <code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">WIDGET.main.html</code> in your browser</li>
+      <li>No server setup required - runs entirely client-side</li>
+      <li>All processing happens locally in your browser</li>
+    </ul>
+  </li>
+  <li style="margin-bottom: 10px;"><strong>File Structure</strong>
+    <pre style="background: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 5px; border: 1px solid rgba(0, 255, 255, 0.3); margin-top: 5px;"><code style="color: #00ff00;">COSMOS-AI-ATOMIC-PRECISION-UPSCALE-ENGINE/
+├── EngineService.ts.js.txt    # Core engine implementation
+└── WIDGET.main.html.txt       # Demo interface</code></pre>
+  </li>
+</ol>
+
+<h2 style="color: #00ffff; font-size: 2em; margin-bottom: 20px; border-left: 4px solid #ff00ff; padding-left: 15px;">🎮 USAGE INTERFACE</h2>
+
+<h3 style="color: #ff00ff; font-size: 1.5em; margin-bottom: 15px;">🖼️ Image Preparation</h3>
+
+<p style="margin-bottom: 20px;">Add the following attributes to any image element to enable upscaling:</p>
+
+<pre style="background: rgba(0, 0, 0, 0.5); padding: 15px; border-radius: 5px; border: 1px solid rgba(0, 255, 255, 0.3); overflow-x: auto; margin-bottom: 20px;"><code style="color: #00ff00;">&lt;img src="your-image.jpg" 
+     data-cosmos-upscale="true" 
+     data-cosmos-res="2048" 
+     data-cosmos-algo="ATOMIC" /&gt;</code></pre>
+
+<h3 style="color: #ff00ff; font-size: 1.5em; margin-bottom: 15px;">⚙️ Configuration Options</h3>
+
+<h4 style="color: #00ffff; margin-bottom: 10px;">📐 Resolution Settings</h4>
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li><code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">256</code>: 256x256 pixels</li>
+  <li><code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">512</code>: 512x512 pixels</li>
+  <li><code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">1024</code>: 1024x1024 pixels</li>
+  <li><code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">2048</code>: 2048x2048 pixels (default)</li>
+  <li><code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">4096</code>: 4096x4096 pixels</li>
+  <li><code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">8192</code>: 8192x8192 pixels</li>
+</ul>
+
+<h4 style="color: #00ffff; margin-bottom: 10px;">🔬 Algorithm Selection</h4>
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li><code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">ATOMIC</code>: Atomic Super-Resolution (default)</li>
+  <li><code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">QUANTUM</code>: Quantum Frequency</li>
+  <li><code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">WAVELET</code>: Wavelet Decomposition</li>
+  <li><code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">FRACTAL</code>: Fractal Upsampling</li>
+</ul>
+
+<h2 style="color: #00ffff; font-size: 2em; margin-bottom: 20px; border-left: 4px solid #ff00ff; padding-left: 15px;">🧪 ADVANCED INTEGRATION</h2>
+
+<h3 style="color: #ff00ff; font-size: 1.5em; margin-bottom: 15px;">🔌 Module Import</h3>
+
+<p style="margin-bottom: 20px;">Import the engine as an ES6 module:</p>
+
+<pre style="background: rgba(0, 0, 0, 0.5); padding: 15px; border-radius: 5px; border: 1px solid rgba(0, 255, 255, 0.3); overflow-x: auto; margin-bottom: 20px;"><code style="color: #00ff00;">import { HyperEngine, initCosmosWidget } from './services/EngineService.ts';
+
+// Initialize the widget
+initCosmosWidget();
+
+// Or use the engine directly
+const engine = new HyperEngine();
+const upscaledImage = await engine.generate(2048, 'ATOMIC', sourceImage);</code></pre>
+
+<h3 style="color: #ff00ff; font-size: 1.5em; margin-bottom: 15px;">🎛️ Custom Implementation</h3>
+
+<p style="margin-bottom: 20px;">For custom implementations, extend the HyperEngine class:</p>
+
+<pre style="background: rgba(0, 0, 0, 0.5); padding: 15px; border-radius: 5px; border: 1px solid rgba(0, 255, 255, 0.3); overflow-x: auto; margin-bottom: 20px;"><code style="color: #00ff00;">class CustomEngine extends HyperEngine {
+  async customUpscale(resolution, algorithm, sourceImage) {
+    // Custom preprocessing
+    this.customPreprocess(sourceImage);
     
-        if (images.length === 0) {
-            console.log('[HyperEngine] No images found with data-upscale="true"');
-            return;
-        }
+    // Generate upscale
+    const result = await this.generate(resolution, algorithm, sourceImage);
     
-        images.forEach(async (img) => {
-            if (img.dataset.cosmosProcessed) return;
-            
-            // 1. Apply loading state style
-            img.dataset.cosmosProcessed = "processing";
-            const originalTransition = img.style.transition;
-            
-            img.style.transition = "filter 0.5s ease, opacity 0.5s ease";
-            img.style.filter = "blur(4px) grayscale(50%)";
-            img.style.opacity = "0.7";
-    
-            // 2. Parse Config
-            const scale = parseInt(img.dataset.scale || "2");
-            const res = img.naturalWidth * scale; // Calculate resolution based on scale
-            const algo = "ATOMIC"; // Default algorithm
-    
-            try {
-                // Ensure image is loaded for reading
-                if (!img.complete) {
-                    await new Promise((resolve) => {
-                      img.onload = () => resolve(true);
-                    });
-                }
-    
-                // 3. Generate Upscale
-                const resultDataUrl = await this.generate(res, algo, img);
-                
-                if (resultDataUrl) {
-                    // 4. Apply Result
-                    img.src = resultDataUrl;
-                    img.dataset.cosmosProcessed = "complete";
-                    console.log(`[HyperEngine] Upscaled image by ${scale}x using ${algo}.`);
-                }
-    
-            } catch (err) {
-                console.error("[HyperEngine] Upscale failed:", err);
-            } finally {
-                // 5. Cleanup Styles
-                img.style.filter = "none";
-                img.style.opacity = "1";
-                setTimeout(() => {
-                     img.style.transition = originalTransition;
-                }, 500);
-            }
-        });
-    }
+    // Custom postprocessing
+    return this.customPostprocess(result);
+  }
+}</code></pre>
 
-    renderTile(x, y, size, algo, totalRes, source) {
-        if (!this.ctx) return;
+<h2 style="color: #00ffff; font-size: 2em; margin-bottom: 20px; border-left: 4px solid #ff00ff; padding-left: 15px;">🔬 TECHNICAL SPECIFICATIONS</h2>
 
-        this.ctx.save();
-        this.ctx.beginPath();
-        this.ctx.rect(x, y, size, size);
-        this.ctx.clip();
+<h3 style="color: #ff00ff; font-size: 1.5em; margin-bottom: 15px;">⚛️ Processing Pipeline</h3>
 
-        // Map image into tile - scaled representation
-        const srcRatioX = source.naturalWidth / totalRes;
-        const srcRatioY = source.naturalHeight / totalRes;
+<ol style="margin-bottom: 20px; padding-left: 20px;">
+  <li><strong>Image Loading</strong>: Cross-origin image loading with blob conversion</li>
+  <li><strong>Tile Processing</strong>: Parallel processing of 256x256 pixel tiles</li>
+  <li><strong>Algorithm Application</strong>: Algorithm-specific detail enhancement</li>
+  <li><strong>Shader Composition</strong>: Final visual enhancement through shader effects</li>
+  <li><strong>Result Export</strong>: Data URL generation for the upscaled image</li>
+</ol>
 
-        this.ctx.imageSmoothingEnabled = true;
-        this.ctx.imageSmoothingQuality = "high";
+<h3 style="color: #ff00ff; font-size: 1.5em; margin-bottom: 15px;">🧬 Performance Optimizations</h3>
 
-        this.ctx.drawImage(
-            source,
-            x * srcRatioX, y * srcRatioY, size * srcRatioX, size * srcRatioY,
-            x, y, size, size
-        );
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li><strong>Micro-delays</strong>: Prevents UI freezing during processing</li>
+  <li><strong>Tile-based Processing</strong>: Enables parallel processing of image sections</li>
+  <li><strong>Canvas Optimization</strong>: Uses <code style="background: rgba(0, 255, 255, 0.1); padding: 2px 6px; border-radius: 3px; color: #00ffff;">willReadFrequently</code> hint for optimal readback operations</li>
+  <li><strong>Memory Management</strong>: Proper cleanup of blob URLs to prevent memory leaks</li>
+</ul>
 
-        this.ctx.globalCompositeOperation = "screen";
-        algo = (algo || "ATOMIC").toUpperCase();
+<h2 style="color: #00ffff; font-size: 2em; margin-bottom: 20px; border-left: 4px solid #ff00ff; padding-left: 15px;">🌌 QUANTUM LIMITATIONS</h2>
 
-        if (algo.includes("ATOMIC")) this.renderAtomic(x, y, size, totalRes);
-        else if (algo.includes("QUANTUM")) this.renderQuantum(x, y, size);
-        else if (algo.includes("WAVELET")) this.renderWavelet(x, y, size);
-        else this.renderFractal(x, y, size);
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li><strong>Browser-dependent</strong>: Performance varies based on browser capabilities</li>
+  <li><strong>Memory Constraints</strong>: Large resolutions may be limited by available memory</li>
+  <li><strong>Processing Time</strong>: Higher resolutions require more processing time</li>
+  <li><strong>Image Quality</strong>: Results vary based on source image quality and characteristics</li>
+</ul>
 
-        this.ctx.restore();
-    }
+<h2 style="color: #00ffff; font-size: 2em; margin-bottom: 20px; border-left: 4px solid #ff00ff; padding-left: 15px;">🛸 FUTURE ENHANCEMENTS</h2>
 
-    renderAtomic(x, y, size, res) {
-        for (let i = 0; i < 20; i++) {
-            const px = x + Math.random() * size;
-            const py = y + Math.random() * size;
-            const r = Math.random() * (res > 2048 ? 1 : 2);
+<ul style="margin-bottom: 20px; padding-left: 20px;">
+  <li><strong>WebGL Acceleration</strong>: GPU-accelerated processing for enhanced performance</li>
+  <li><strong>Additional Algorithms</strong>: More upscaling algorithms for different use cases</li>
+  <li><strong>Batch Processing</strong>: Enhanced batch processing capabilities</li>
+  <li><strong>Progressive Loading</strong>: Progressive image loading for large images</li>
+  <li><strong>Custom Shaders</strong>: User-defined shader capabilities</li>
+</ul>
 
-            this.ctx.fillStyle = Math.random() > 0.5 ? "#fff" : "#ff9900";
-            this.ctx.globalAlpha = Math.random() * 0.2;
+<h2 style="color: #00ffff; font-size: 2em; margin-bottom: 20px; border-left: 4px solid #ff00ff; padding-left: 15px;">🌟 CONCLUSION</h2>
 
-            this.ctx.beginPath();
-            this.ctx.arc(px, py, r, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
-    }
+<p style="font-size: 1.1em; line-height: 1.8; margin-bottom: 20px;">The <strong style="color: #ff00ff;">CosmOS AI Hyper-Precision Engine</strong> represents a quantum leap in browser-based image upscaling technology. By leveraging advanced algorithms and sophisticated processing techniques, it transforms ordinary images into extraordinary visual experiences, all within the confines of your browser.</p>
 
-    renderQuantum(x, y, size) {
-        this.ctx.strokeStyle = "#00ffff";
-        this.ctx.globalAlpha = 0.15;
+<p style="text-align: center; font-style: italic; color: #00ffff; font-size: 1.2em; margin-top: 30px;">Experience the future of image enhancement today.</p>
 
-        for (let i = 0; i < 3; i++) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(x, y + Math.random() * size);
-            this.ctx.bezierCurveTo(
-                x + size / 2, y,
-                x + size / 2, y + size,
-                x + size, y + Math.random() * size
-            );
-            this.ctx.stroke();
-        }
-    }
-
-    renderWavelet(x, y, size) {
-        for (let i = 0; i < 8; i++) {
-            const w = Math.random() * size;
-            const h = Math.random() * size;
-
-            this.ctx.fillStyle = "#ff00ff";
-            this.ctx.globalAlpha = 0.08;
-
-            this.ctx.fillRect(
-                x + Math.random() * (size - w),
-                y + Math.random() * (size - h),
-                w, h
-            );
-        }
-    }
-
-    renderFractal(x, y, size) {
-        this.ctx.strokeStyle = "#00ff88";
-        this.ctx.globalAlpha = 0.2;
-
-        const cx = x + size / 2;
-        const cy = y + size / 2;
-
-        this.ctx.beginPath();
-        this.ctx.moveTo(cx, cy - size / 3);
-        this.ctx.lineTo(cx + size / 3, cy + size / 3);
-        this.ctx.lineTo(cx - size / 3, cy + size / 3);
-        this.ctx.closePath();
-        this.ctx.stroke();
-    }
-
-    applyFinalShaders(res) {
-        this.ctx.globalAlpha = 1;
-
-        // Scanlines
-        this.ctx.fillStyle = "rgba(0,0,0,0.1)";
-        for (let i = 0; i < res; i += 4) {
-            this.ctx.fillRect(0, i, res, 1);
-        }
-
-        // Vignette
-        const g = this.ctx.createRadialGradient(
-            res / 2, res / 2, res / 4,
-            res / 2, res / 2, res
-        );
-        g.addColorStop(0, "rgba(0,0,0,0)");
-        g.addColorStop(1, "rgba(0,0,0,0.4)");
-
-        this.ctx.fillStyle = g;
-        this.ctx.fillRect(0, 0, res, res);
-
-        // Glow
-        this.ctx.globalCompositeOperation = "overlay";
-        this.ctx.fillStyle = "rgba(0,255,255,0.05)";
-        this.ctx.fillRect(0, 0, res, res);
-
-        // Reset
-        this.ctx.globalCompositeOperation = "source-over";
-    }
-}
-
-// ==========================================
-// AUTO WIDGET
-// ==========================================
-const initCosmosWidget = () => {
-    console.log("✨ Cosmos Hyper-Precision Widget Active ✨");
-
-    const engine = new HyperEngine();
-    const images = document.querySelectorAll("img[data-cosmos-upscale='true']");
-
-    images.forEach(async (img) => {
-        if (img.dataset.cosmosProcessed === "true") return;
-
-        img.dataset.cosmosProcessed = "true";
-
-        const res = parseInt(img.dataset.cosmosRes || "1024");
-        const algo = img.dataset.cosmosAlgo || "ATOMIC";
-
-        // Loading effect
-        img.style.opacity = "0.6";
-        img.style.filter = "blur(4px) grayscale(50%)";
-        img.style.transition = "0.4s ease";
-
-        await new Promise(r => img.complete ? r() : img.onload = r);
-
-        const result = await engine.generate(res, algo, img);
-
-        if (result) {
-            img.src = result;    // LIVE REPLACEMENT
-        }
-
-        // Reveal final
-        img.style.opacity = "1";
-        img.style.filter = "none";
-    });
-};
-
-// Auto-run
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initCosmosWidget);
-} else {
-    initCosmosWidget();
-}
-
-export { HyperEngine, initCosmosWidget };
-
-</script>
- 
 </div>
